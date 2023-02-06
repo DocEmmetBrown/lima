@@ -2,6 +2,7 @@ package osutil
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
@@ -103,12 +104,21 @@ func LimaUser(warn bool) (*user.User, error) {
 		if cache.err == nil {
 			// `useradd` only allows user and group names matching the following pattern:
 			// (it allows a trailing '$', but it feels prudent to map those to the fallback user as well)
-			validName := "^[a-z_][a-z0-9_-]*$"
+			validName := "^[a-z_][a-z0-9._-]*$"
+
+			if val, ok := os.LookupEnv("LIMA_CIDATA_USER"); ok != false {
+				cache.u.Username = val
+			}
 			if !regexp.MustCompile(validName).Match([]byte(cache.u.Username)) {
 				warning := fmt.Sprintf("local user %q is not a valid Linux username (must match %q); using %q username instead",
 					cache.u.Username, validName, fallbackUser)
 				cache.warnings = append(cache.warnings, warning)
 				cache.u.Username = fallbackUser
+			}
+
+			cache.u.HomeDir = "/home/" + cache.u.Username + ".linux"
+			if val, ok := os.LookupEnv("LIMA_CIDATA_HOMEDIR"); ok != false {
+				cache.u.HomeDir = "/home/" + val
 			}
 			if runtime.GOOS == "windows" {
 				idu, err := call([]string{"id", "-u"})

@@ -54,6 +54,7 @@ type TemplateArgs struct {
 	IID                string // instance id
 	User               string // user name
 	UID                int
+	Homedir            string // user home dir under /home
 	SSHPubKeys         []string
 	Mounts             []Mount
 	MountType          string

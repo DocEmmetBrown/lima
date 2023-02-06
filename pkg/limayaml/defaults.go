@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"net"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -553,7 +552,7 @@ func executeHostTemplate(format string, instDir string) (bytes.Buffer, error) {
 	tmpl, err := template.New("").Parse(format)
 	if err == nil {
 		user, _ := osutil.LimaUser(false)
-		home, _ := os.UserHomeDir()
+		home := user.HomeDir
 		limaHome, _ := dirnames.LimaDir()
 		data := map[string]string{
 			"Dir":  instDir,
